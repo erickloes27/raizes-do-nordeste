@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raízes do Nordeste - Cardápio Digital</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Barra de alternancia entre celular e totem -->
+  <div class="barra-simulacao">
+    <span>Visualizar como:</span>
+    <button id="btnModoApp" class="btn-modo ativo" onclick="alternarModoVisual('app')">App Mobile</button>
+    <button id="btnModoTotem" class="btn-modo" onclick="alternarModoVisual('totem')">Totem Autoatendimento</button>
+  </div>
+
+  <!-- Container principal (muda entre celular e totem) -->
+  <div id="containerPrincipal" class="container-app">
+
+    <header class="cabecalho">
+      <div class="topo-marca">
+        <div>
+          <h1>Raízes do Nordeste</h1>
+          <p class="subtitulo">Culinária regional feita na hora</p>
+        </div>
+        <div class="acoes-topo">
+          <button class="btn-conta" id="btnContaTopo" onclick="abrirModalLogin()">Entrar</button>
+          <button class="btn-carrinho" onclick="abrirModalCarrinho()">
+            Sacola (<span id="contadorCarrinho">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <!-- Selecao da unidade -->
+      <div class="seletor-unidade">
+        <label for="selectUnidade">Unidade:</label>
+        <select id="selectUnidade"></select>
+      </div>
+      <p id="infoUnidade" class="info-unidade"></p>
+
+      <!-- Barra de pontos fidelidade -->
+      <div class="barra-fidelidade" id="barraFidelidade">
+        <div>
+          <span>Fidelidade: <strong id="pontosFidelidade">180</strong> pts</span>
+          <small style="display:block; font-size:11px; color:#555;">Acumule pontos e troque por descontos</small>
+        </div>
+        <button class="btn-trocar-pontos" onclick="abrirModalFidelidade()">Trocar Pontos</button>
+      </div>
+    </header>
+
+    <!-- Aviso de promocao da loja -->
+    <section class="banner-campanha">
+      <p id="textoCampanha">Carregando promoções da unidade...</p>
+    </section>
+
+    <!-- Busca e filtro -->
+    <div class="barra-busca">
+      <input type="text" id="inputBusca" placeholder="Buscar prato ou ingrediente..." oninput="filtrarPorBusca()">
+      <button id="btnFiltroVeg" class="btn-filtro-veg" onclick="alternarFiltroVeg()">Vegetariano</button>
+    </div>
+
+    <!-- Categorias -->
+    <nav class="menu-categorias" id="listaCategorias"></nav>
+
+    <!-- Lista de produtos -->
+    <main class="conteudo-principal">
+      <div id="gradeProdutos" class="grade-produtos"></div>
+    </main>
+
+    <footer class="rodape">
+      <p>Raízes do Nordeste Lanchonetes Ltda.</p>
+      <button class="btn-link" onclick="abrirModalLGPD()">Privacidade e Dados (LGPD)</button>
+    </footer>
+
+    <!-- Aviso de cookies LGPD -->
+    <div id="bannerLGPD" class="banner-lgpd">
+      <p>
+        Usamos cookies essenciais para salvar sua sacola e pontuar no programa de fidelidade, conforme a <strong>LGPD (Lei nº 13.709/2018)</strong>.
+      </p>
+      <div class="acoes-lgpd">
+        <button class="btn-secundario" onclick="abrirModalLGPD()">Opções</button>
+        <button class="btn-primario-pequeno" onclick="aceitarLGPD()">Concordar</button>
+      </div>
+    </div>
+
+    <!-- Modal de login e cadastro -->
+    <div id="modalLogin" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Minha Conta</h2>
+          <button class="btn-fechar" onclick="fecharModalLogin()">X</button>
+        </div>
+        <div id="areaUsuarioLogado" style="display: none;">
+          <p style="margin-bottom:8px;">Logado como: <strong id="nomeUsuarioModal">Carlos Eduardo</strong></p>
+          <p style="font-size:13px; color:#555; margin-bottom:12px;">CPF: <span id="cpfUsuarioModal">123.456.789-00</span></p>
+          <p style="font-size:13px; background:#f9f2ec; padding:8px; border-radius:4px; margin-bottom:12px;">
+            Saldo Raízes Fidelidade: <strong id="pontosUsuarioModal">180</strong> pontos
+          </p>
+          <div style="margin-bottom:12px;">
+            <h4 style="font-size:13px; margin-bottom:6px; color:#333;">Meus Últimos Pedidos:</h4>
+            <div id="listaHistoricoPedidos" style="max-height:110px; overflow-y:auto; background:#fafafa; border:1px solid #ddd; border-radius:4px; padding:8px; font-size:12px;"></div>
+          </div>
+          <button class="btn-secundario" style="width:100%;" onclick="deslogarUsuario()">Sair da Conta</button>
+        </div>
+        <div id="formLoginCadastro">
+          <p style="font-size:13px; color:#555; margin-bottom:10px;">
+            Entre ou cadastre-se rapidamente para acumular pontos de fidelidade e acompanhar seus pedidos:
+          </p>
+          <label style="font-size:12px; font-weight:bold;">Nome Completo:</label>
+          <input type="text" id="inputNomeUsuario" placeholder="Ex: Maria Silva" style="width:100%; padding:8px; margin:4px 0 10px; border:1px solid #ccc; border-radius:4px;">
+          <label style="font-size:12px; font-weight:bold;">CPF (para pontuar na nota):</label>
+          <input type="text" id="inputCpfUsuario" placeholder="000.000.000-00" style="width:100%; padding:8px; margin:4px 0 10px; border:1px solid #ccc; border-radius:4px;">
+          <label style="font-size:12px; font-weight:bold;">Senha de acesso:</label>
+          <input type="password" id="inputSenhaUsuario" placeholder="******" style="width:100%; padding:8px; margin:4px 0 10px; border:1px solid #ccc; border-radius:4px;">
+          <button class="btn-primario" onclick="realizarLoginCadastro()">Entrar / Cadastrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de recompensas fidelidade -->
+    <div id="modalFidelidade" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Programa Raízes Fidelidade</h2>
+          <button class="btn-fechar" onclick="fecharModalFidelidade()">X</button>
+        </div>
+        <p style="font-size:13px; color:#555; margin-bottom:10px;">
+          Cada R$ 1,00 gasto vale 1 ponto. Troque seus pontos por descontos diretos no pedido atual:
+        </p>
+        <p style="background:#f9f2ec; padding:8px; border-radius:4px; font-size:14px; margin-bottom:12px;">
+          Seu saldo disponível: <strong id="saldoModalFidelidade">180 pts</strong>
+        </p>
+        <div class="lista-recompensas">
+          <div class="item-recompensa">
+            <div>
+              <strong>Bônus R$ 5,00 OFF</strong>
+              <small style="display:block; color:#666;">Custo: 100 pontos</small>
+            </div>
+            <button class="btn-adicionar" onclick="resgatarRecompensa(100, 5.00, 'Bônus Fidelidade R$ 5,00')">Resgatar</button>
+          </div>
+          <div class="item-recompensa">
+            <div>
+              <strong>Bônus R$ 12,00 OFF</strong>
+              <small style="display:block; color:#666;">Custo: 200 pontos</small>
+            </div>
+            <button class="btn-adicionar" onclick="resgatarRecompensa(200, 12.00, 'Bônus Fidelidade R$ 12,00')">Resgatar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de personalizacao de item -->
+    <div id="modalProduto" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Personalizar Item</h2>
+          <button class="btn-fechar" onclick="fecharModalProduto()">X</button>
+        </div>
+        <div id="conteudoModalProduto"></div>
+      </div>
+    </div>
+
+    <!-- Modal da sacola -->
+    <div id="modalCarrinho" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Sua Sacola</h2>
+          <button class="btn-fechar" onclick="fecharModalCarrinho()">X</button>
+        </div>
+
+        <div id="listaItensCarrinho" class="lista-carrinho"></div>
+
+        <div class="box-cupom">
+          <label for="inputCupom">Cupom Promocional:</label>
+          <div class="linha-cupom">
+            <input type="text" id="inputCupom" placeholder="Ex: PRIMEIRACOMPRA ou SAOJOAO">
+            <button class="btn-secundario" onclick="aplicarCupom()">Aplicar</button>
+          </div>
+          <small id="feedbackCupom" class="feedback-cupom"></small>
+        </div>
+
+        <div class="resumo-valores" id="resumoValoresCarrinho"></div>
+
+        <div class="acoes-modal">
+          <button class="btn-primario" onclick="irParaCheckout()">Ir para Pagamento</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de pagamento -->
+    <div id="modalCheckout" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Pagamento</h2>
+          <button class="btn-fechar" onclick="fecharModalCheckout()">X</button>
+        </div>
+
+        <p class="aviso-gateway">
+          Conexão com serviço externo de pagamento. Os dados de cartão não ficam salvos no aplicativo.
+        </p>
+
+        <div class="opcoes-pagamento">
+          <label>
+            <input type="radio" name="metodoPagamento" value="pix" checked onchange="selecionarPagamento('pix')">
+            PIX (Aprovação imediata)
+          </label>
+          <label>
+            <input type="radio" name="metodoPagamento" value="cartao" onchange="selecionarPagamento('cartao')">
+            Cartão de Crédito / Débito
+          </label>
+        </div>
+
+        <div id="areaPix" class="box-pagamento">
+          <p>Escaneie o QR Code ou copie o código PIX abaixo:</p>
+          <div class="qrcode-falso">[ QR CODE PIX ]</div>
+          <input type="text" readonly value="00020126580014BR.GOV.BCB.PIX0136raizesdonordeste-pagamentos" class="input-pix">
+        </div>
+
+        <div id="areaCartao" class="box-pagamento" style="display: none;">
+          <label>Número do Cartão:</label>
+          <input type="text" placeholder="0000 0000 0000 0000" maxlength="19">
+          <label>Nome Impresso no Cartão:</label>
+          <input type="text" placeholder="NOME DO TITULAR">
+          <div class="linha-dupla">
+            <div>
+              <label>Validade:</label>
+              <input type="text" placeholder="MM/AA" maxlength="5">
+            </div>
+            <div>
+              <label>CVV:</label>
+              <input type="text" placeholder="123" maxlength="3">
+            </div>
+          </div>
+        </div>
+
+        <div id="statusProcessamentoGateway" class="status-gateway" style="display: none;"></div>
+
+        <button class="btn-primario" id="btnConfirmarPagamento" onclick="simularPagamentoExterno(true)">
+          Enviar Pagamento ao Gateway
+        </button>
+        <button class="btn-secundario" id="btnSimularFalha" style="width:100%; margin-top:8px;" onclick="simularPagamentoExterno(false)">
+          Testar pagamento recusado
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal de status do pedido -->
+    <div id="modalStatus" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Status do Pedido</h2>
+          <button class="btn-fechar" onclick="fecharModalStatus()">X</button>
+        </div>
+
+        <p class="numero-pedido" id="numeroPedidoGerado">Pedido #1042</p>
+
+        <ul class="lista-status">
+          <li id="passoRecebido" class="concluido">1. Pagamento confirmado pelo serviço externo</li>
+          <li id="passoPreparo">2. Em preparo na cozinha da unidade</li>
+          <li id="passoPronto">3. Pronto para retirada no balcão!</li>
+        </ul>
+
+        <button class="btn-primario" onclick="fecharModalStatus()">Fazer Novo Pedido</button>
+      </div>
+    </div>
+
+    <!-- Modal de privacidade LGPD -->
+    <div id="modalLGPD" class="modal-fundo" style="display: none;">
+      <div class="modal-caixa">
+        <div class="modal-topo">
+          <h2>Privacidade de Dados (LGPD)</h2>
+          <button class="btn-fechar" onclick="fecharModalLGPD()">X</button>
+        </div>
+        <p style="font-size: 13px; margin-bottom: 12px;">
+          Em cumprimento à Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem controle sobre os dados coletados no nosso aplicativo:
+        </p>
+        <div class="opcoes-lgpd">
+          <label>
+            <input type="checkbox" checked disabled>
+            <strong>Cookies Estritamente Necessários (Obrigatório)</strong> - Mantêm os itens na sacola e a sessão da loja escolhida.
+          </label>
+          <label>
+            <input type="checkbox" id="checkFidelidadeLGPD" checked>
+            <strong>Programa de Fidelidade</strong> - Autorizo o uso do meu CPF para acumular pontos e histórico de pedidos.
+          </label>
+          <label>
+            <input type="checkbox" id="checkMarketingLGPD">
+            <strong>Comunicações e Ofertas</strong> - Desejo receber avisos de promoções regionais (como o cardápio de São João).
+          </label>
+        </div>
+        <div style="margin-top: 15px; display: flex; gap: 8px; flex-direction: column;">
+          <button class="btn-primario" onclick="salvarPreferenciasLGPD()">Salvar Preferências</button>
+          <button class="btn-secundario" onclick="solicitarExclusaoDados()">Solicitar Exclusão da Minha Conta e Dados</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/mockData.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
